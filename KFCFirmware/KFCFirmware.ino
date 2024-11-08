@@ -44,9 +44,88 @@
 #include "src/brieflz.h"
 #include "src/utils.h"         // 
 
+#include "driver/uart.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+//#include "nmea.h"
+
+// UART configuration
+#define UART_NUM UART_NUM_2
+#define BUF_SIZE (1024)
+#define RD_BUF_SIZE (BUF_SIZE)
+
+// UART event queue
+static QueueHandle_t uart_queue;
+
+// UART event handler
+static void uart_event_task(void *pvParameters)
+{
+    uart_event_t event;
+    uint8_t* dtmp = (uint8_t*) malloc(RD_BUF_SIZE);
+    for(;;) {
+        // Waiting for UART event.
+        if(xQueueReceive(uart_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
+            bzero(dtmp, RD_BUF_SIZE);
+            switch(event.type) {
+                // Event of UART receiving data
+                case UART_DATA:
+                    uart_read_bytes(UART_NUM, dtmp, event.size, portMAX_DELAY);
+                    // Process received data
+                    break;
+                // Event of UART FIFO overflow
+                case UART_FIFO_OVF:
+                    uart_flush_input(UART_NUM);
+                    xQueueReset(uart_queue);
+                    break;
+                // Event of UART buffer full
+                case UART_BUFFER_FULL:
+                    uart_flush_input(UART_NUM);
+                    xQueueReset(uart_queue);
+                    break;
+                // Event of UART parity check error
+                case UART_PARITY_ERR:
+                    break;
+                // Event of UART frame error
+                case UART_FRAME_ERR:
+                    break;
+                // Others
+                default:
+                    break;
+            }
+        }
+    }
+    free(dtmp);
+    dtmp = NULL;
+}
+
+// UART initialization
+void init_uart()
+{
+    const uart_config_t uart_config = {
+        .baud_rate = 9600,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .source_clk = UART_SCLK_APB,
+    };
+    uart_driver_install(UART_NUM, BUF_SIZE * 2, BUF_SIZE * 2, 20, &uart_queue, 0);
+    uart_param_config(UART_NUM, &uart_config);
+    uart_set_pin(UART_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+
+    // Create a task to handle UART events
+    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 12, NULL);
+}
+
+// rename serial ports
+#define SERIAL      Serial  // debug serial (USB) all uses should be conditional on DEBUG define
+#define SERIAL_IRD  UART_NUM // to iridium modem
+#define SERIAL_GPS  UART_NUM // to GPS
+#define SERIAL_BSMS Serial1 // to BSMS 
 
 // Serial 2
-Serial Serial2( &sercom3, 13, 12, SERCOM_RX_PAD_1, UART_TX_PAD_0 ) ;
+//Serial Serial2( &sercom3, 13, 12, SERCOM_RX_PAD_1, UART_TX_PAD_0 ) ;
 // void SERCOM3_0_Handler()
 // {
 //   Serial2.IrqHandler();
@@ -65,7 +144,7 @@ Serial Serial2( &sercom3, 13, 12, SERCOM_RX_PAD_1, UART_TX_PAD_0 ) ;
 // }
 
 // Serial3
-Serial Serial3 (&sercom4, 13, 12, SERCOM_RX_PAD_1, UART_TX_PAD_0);
+//Serial Serial3 (&sercom4, 13, 12, SERCOM_RX_PAD_1, UART_TX_PAD_0);
 //void SERCOM4_0_Handler()
 // {
 //   Serial3.IrqHandler();
@@ -107,11 +186,11 @@ void onRmcUpdate(nmea::RmcData const);
 void onGgaUpdate(nmea::GgaData const);
 
 // rename serial ports
-#define SERIAL      Serial  // debug serial (USB) all uses should be conditional on DEBUG define
+//#define SERIAL      Serial  // debug serial (USB) all uses should be conditional on DEBUG define
 //#define SERIAL_PI   Serial4 // UART to Neo Pi port
-#define SERIAL_IRD  Serial2 // to iridium modem
-#define SERIAL_GPS  Serial2 //Serial3, switched to 2 to get to compile for esp32 // to GPS
-#define SERIAL_BSMS Serial1 // to BSMS 
+//#define SERIAL_IRD  Serial2 // to iridium modem
+//#define SERIAL_GPS  Serial2 //Serial3, switched to 2 to get to compile for esp32 // to GPS
+//#define SERIAL_BSMS Serial1 // to BSMS 
 
 // TC to digital objects
 #ifdef MCP9601
@@ -1799,14 +1878,13 @@ static void gpsThread( void *pvParameters )
     // semaphore should not be needed since this is the only thread 
     // accessing the hardware
     //if ( xSemaphoreTake( gpsSerSem, ( TickType_t ) 100 ) == pdTRUE ) {
-      while (SERIAL_GPS.available()) {
-        //SERIAL.write((char)SERIAL_GPS.read());
-        parser.encode((char)SERIAL_GPS.read());
-      }
-    //  xSemaphoreGive( gpsSerSem );
-    //}
-
-      //vTaskDelay(10);
+       uint8_t data[RD_BUF_SIZE];
+    int len = uart_read_bytes(UART_NUM, data, RD_BUF_SIZE, 100 / portTICK_RATE_MS);
+    if (len > 0) {
+        for (int i = 0; i < len; i++) {
+            parser.encode((char)data[i]);
+        }
+    }
       myDelayMs(10);
   }
 
@@ -3104,14 +3182,48 @@ void setup() {
 
 
 
-  delay(100);
-  SERIAL_GPS.begin(38400); // init gps serial
-  delay(10);
-  //SERIAL_PI.begin(115200); // init serial to NanoPi
-  delay(10);
-  SERIAL_IRD.begin(9600); // Iridium radio connection
-  delay(10);
-  SERIAL_BSMS.begin(115200); // serial connection to bsms
+ vTaskDelay(pdMS_TO_TICKS(100));
+uart_config_t uart_config_gps = {
+    .baud_rate = 38400,
+    .data_bits = UART_DATA_8_BITS,
+    .parity = UART_PARITY_DISABLE,
+    .stop_bits = UART_STOP_BITS_1,
+    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    .source_clk = UART_SCLK_APB,
+};
+uart_param_config(UART_NUM_1, &uart_config_gps);
+uart_driver_install(UART_NUM_1, BUF_SIZE * 2, BUF_SIZE * 2, 20, &uart_queue, 0);
+uart_set_pin(UART_NUM_1, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+
+vTaskDelay(pdMS_TO_TICKS(10));
+
+uart_config_t uart_config_ird = {
+    .baud_rate = 9600,
+    .data_bits = UART_DATA_8_BITS,
+    .parity = UART_PARITY_DISABLE,
+    .stop_bits = UART_STOP_BITS_1,
+    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    .source_clk = UART_SCLK_APB,
+};
+uart_param_config(UART_NUM_2, &uart_config_ird);
+uart_driver_install(UART_NUM_2, BUF_SIZE * 2, BUF_SIZE * 2, 20, &uart_queue, 0);
+uart_set_pin(UART_NUM_2, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+
+vTaskDelay(pdMS_TO_TICKS(10));
+
+uart_config_t uart_config_bsms = {
+    .baud_rate = 115200,
+    .data_bits = UART_DATA_8_BITS,
+    .parity = UART_PARITY_DISABLE,
+    .stop_bits = UART_STOP_BITS_1,
+    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    .source_clk = UART_SCLK_APB,
+};
+uart_param_config(UART_NUM_0, &uart_config_bsms);
+uart_driver_install(UART_NUM_0, BUF_SIZE * 2, BUF_SIZE * 2, 20, &uart_queue, 0);
+uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+
+vTaskDelay(pdMS_TO_TICKS(10));
 
   // Assign SERCOM functionality to enable 3 more UARTs
   //pinPeripheral(A1, PIO_SERCOM_ALT);
