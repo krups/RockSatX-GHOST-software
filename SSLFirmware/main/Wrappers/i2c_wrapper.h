@@ -14,9 +14,13 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "esp_err.h"
+#include "esp_mac.h"
 
-//defines, constants
-#define CONFIG_I2CDEV_TIMEOUT 1000
+
+#ifndef CONFIG_FREERTOS_HZ
+#define CONFIG_FREERTOS_HZ 1000 
+#endif
+ 
 #define I2C_DEV_MAX_STRETCH_TIME 0x00ffffff 
 
 // I2C device descriptor

@@ -8,6 +8,10 @@
 #include "i2c_wrapper.h"
 
 
+
+//defines, constants
+static int _i2c_timeout_ticks = pdMS_TO_TICKS(1000);
+
 //array of struct holding configuration for each i2c port
 static i2c_port_state_t i2c_port_state[I2C_NUM_MAX] = {0};
 
@@ -16,7 +20,7 @@ static const char *TAG = "i2c_wrapper";
 //private functions
 esp_err_t _SemaphoreTake_i2c_dev(int port)
 {
-    if(!xSemaphoreTake(i2c_port_state[port].lock, pdMS_TO_TICKS(CONFIG_I2C_TIMEOUT_MS)))
+    if(!xSemaphoreTake(i2c_port_state[port].lock, _i2c_timeout_ticks))
     {
         ESP_LOGE(TAG, "Failed to take I2C port %d mutex", port);
         return ESP_FAIL;
@@ -62,10 +66,10 @@ esp_err_t i2c_dev_done()
         }
         if (i2c_port_state[i].installed)
         {
-            _SemaphoreTake_i2c_dev(i)
+            _SemaphoreTake_i2c_dev(i);
             i2c_driver_delete(i);
             i2c_port_state[i].installed = false;
-            _SemaphoreGive_i2c_dev(i)
+            _SemaphoreGive_i2c_dev(i);
         }
 
         vSemaphoreDelete(i2c_port_state[i].lock);
@@ -125,7 +129,7 @@ esp_err_t i2c_dev_delete_mutex(i2c_dev_t *dev)
     
     return ESP_OK;
 
-    esp_err_t i2c_dev_take_mutex(i2c_dev_t *dev)
+    esp_err_t i2c_dev_take_mutex(i2c_dev_t *dev);
     {
         if (!dev)
         {
@@ -141,7 +145,7 @@ esp_err_t i2c_dev_delete_mutex(i2c_dev_t *dev)
 
         ESP_LOGV(TAG, "[0x%02x at %d] taking mutex", dev->addr, dev->port);
 
-        if (!xSemaphoreTake(dev->mutex, pdMS_TO_TICKS(CONFIG_I2C_TIMEOUT_MS)))
+        if (!xSemaphoreTake(dev->mutex, _i2c_timeout_ticks))
         {
             ESP_LOGE(TAG, "[0x%02x at %d] Failed to take I2C device mutex", dev->addr, dev->port);
             return ESP_FAIL;
