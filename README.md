@@ -30,4 +30,4 @@ Tools to decompress received iridium packets and convert them from binary format
 
 The hardware that this code runs on is in seperate repositories. See Below.
 
-[FemptoSats hardware](https://github.com/krups/KRUPS-FemtoSat)
+[RockSatX GHOST Hardware](https://github.com/krups/RockSatX-GHOST-Hardware)
