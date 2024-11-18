@@ -74,10 +74,24 @@
 \section{Wrappers}
 
 \subsection{I2C Wrapper}
-%%\par TODO note define CONFIG_I2C_TIMEOUT_MS = 1000
-%% https://github.com/UncleRus/esp-idf-lib/tree/master/components/i2cdev
+\par the I2C wrapper is a thread safe wrapper of the I2C driver from ESP-IDF. It mostly uses semaphores to allow and disallow access to th i2c bus. This is not the optimal implementation. If needing higher effiency a single thread should manage the each i2c bus.
+\par Note the timeout ticks is hard  defined to 1000 in the I2C wrapper header file. 
+\par this wrapper is based on the i2cdev library from UncleRus.
 
 
+\begin{itemize}
+    \item \textbf{i2c\_dev\_init}: Initializes the I2C device, setting up the necessary configurations.
+    \item \textbf{i2c\_dev\_done}: Deinitializes the I2C device, releasing resources.
+    \item \textbf{i2c\_dev\_create\_mutex}: Creates a mutex for the I2C device to ensure thread-safe operations.
+    \item \textbf{i2c\_dev\_delete\_mutex}: Deletes the mutex associated with the I2C device.
+    \item \textbf{i2c\_dev\_take\_mutex}: Takes the mutex for the I2C device, blocking other threads from accessing it.
+    \item \textbf{i2c\_dev\_give\_mutex}: Releases the mutex for the I2C device, allowing other threads to access it.
+    \item \textbf{i2c\_dev\_probe}: Checks if the I2C device is available and ready for communication.
+    \item \textbf{i2c\_dev\_read}: Reads data from the I2C device.
+    \item \textbf{i2c\_dev\_write}: Writes data to the I2C device.
+    \item \textbf{i2c\_dev\_read\_reg}: Reads data from a specific register of the I2C device.
+    \item \textbf{i2c\_dev\_write\_reg}: Writes data to a specific register of the I2C device.
+\end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Missions %%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{KRUPS Aboard Norwegian GhostSat (KANG)}
 \section{Kentucky Flight Computer (KFC) Requirements}
