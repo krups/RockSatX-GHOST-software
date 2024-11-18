@@ -7,16 +7,24 @@ cmake_minimum_required(VERSION 3.5)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(SSLFirmware)
 
-add_subdirectory((main))
+# Add subdirectories
+add_subdirectory(main)
 add_subdirectory(main/Wrappers)
 
 # Add your source files here
 set(SOURCES
     main.c
-    i2c_wrapper.c
+    Managers/i2c_manager.c
+    Sensors/BME280_sensor.c
+    Wrappers/i2c_wrapper.c
     # Add other source files as needed
 )
 
 # Add executable
 idf_component_register(SRCS ${SOURCES}
-                       INCLUDE_DIRS .)
+                       INCLUDE_DIRS .
+                       INCLUDE_DIRS main
+                       INCLUDE_DIRS main/Managers
+                       INCLUDE_DIRS main/Sensors
+                       INCLUDE_DIRS main/Wrappers
+                       INCLUDE_DIRS Libraries)

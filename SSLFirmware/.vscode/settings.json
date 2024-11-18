@@ -21,6 +21,7 @@
         "esp_log.h": "c",
         "esp_mac.h": "c",
         "semphr.h": "c",
-        "esp_system.h": "c"
+        "esp_system.h": "c",
+        "bme280_sensor.h": "c"
     }
 }
