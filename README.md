@@ -1,4 +1,4 @@
-## DEV BRANCH
+## Ongoing Development
 This Branch is for testing ESP-IDF and try to get away from Arduino IDE
 ## RockSat-X Software
 
