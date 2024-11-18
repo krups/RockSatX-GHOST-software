@@ -4,7 +4,7 @@ This Branch is for testing ESP-IDF and try to get away from Arduino IDE
 
 Software supporting the [RockSat-X Ghost flight computer, Femptosats, and Ground Station]([https://github.com/krups/RockSatX-Ghost-software]) RockSat-X Flight (Ghost) November 2025.
 
-This codebase is built on the [KREPE Flight Computer (KFC)](https://github.com/krups/iss-software). The major change to the Flight Computer is changing. The cobebase is being rewritten in ESP-IDF. See the ```doc``` folder for the full documentation.
+This codebase is built on the [KREPE Flight Computer (KFC)](https://github.com/krups/iss-software). The major change was updating the MCU to a ESP32-S3. The cobebase is being rewritten in ESP-IDF. See the ```doc``` folder for the full documentation.
 
 
 ### Firmware 
