@@ -4,24 +4,18 @@ This Branch is for testing ESP-IDF and try to get away from Arduino IDE
 
 Software supporting the [RockSat-X Ghost flight computer, Femptosats, and Ground Station]([https://github.com/krups/RockSatX-Ghost-software]) RockSat-X Flight (Ghost) November 2025.
 
-This codebase is built on the [KREPE Flight Computer (KFC)](https://github.com/krups/iss-software). The major change to the Flight Computer is changing the MCU and upgrading the LoRa module.
+This codebase is built on the [KREPE Flight Computer (KFC)](https://github.com/krups/iss-software). The major change to the Flight Computer is changing. The cobebase is being rewritten in ESP-IDF. See the ```doc``` folder for the full documentation.
+
 
 ### Firmware 
-Main flight computer (ESP32-S3-WROOM) firmware is in ```KFCFirmware``` folder.
+SSL firmware is in ```SSLFirmware``` folder.
 
 Spectrometer subsystem (FeatherM0/M4) firmware is in ```BSMSFirmware``` folder.
 
-FemptoSats (ESP32-S3-WROOM) is in  ```FemptoSatsFirmware``` folder.
-
-Rocket Station Transmitter (ESP32-S3-WROOM) firmware is in  ```RSTFirmware``` folder.
-
 Rocket Station (Raspberry Pi 5) firmware is in  ```RocketStationFirmware``` folder.
-
-Ground Station firmware (DEFINE) processor is in ```GroundGtationFirmware``` folder.
 
 Shared code and parameters between these three firmwares is in ```src/``` directory.
 
-Groundstation Image processing is in the ```GoundstationImage``` folder.
 
 ### Data Analysis
 Tools to decompress received iridium packets and convert them from binary format to CSV format are in the ```tools/``` directory.
