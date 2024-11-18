@@ -11,7 +11,7 @@
 
 //if I2C is defined, include the I2C library
 #ifdef I2C1 || I2C2
-
+#include "Wrappers/i2c_wrapper.h"
 #endif
 
 

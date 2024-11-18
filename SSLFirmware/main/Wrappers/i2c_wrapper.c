@@ -7,10 +7,8 @@
 
 #include "i2c_wrapper.h"
 
-
-
 //defines, constants
-static int _i2c_timeout_ticks = pdMS_TO_TICKS(1000);
+const int _i2c_timeout_ticks = 1000;
 
 //array of struct holding configuration for each i2c port
 static i2c_port_state_t i2c_port_state[I2C_NUM_MAX] = {0};
@@ -25,6 +23,7 @@ esp_err_t _SemaphoreTake_i2c_dev(int port)
         ESP_LOGE(TAG, "Failed to take I2C port %d mutex", port);
         return ESP_FAIL;
     }
+
     return ESP_OK;
 }
 
@@ -128,31 +127,31 @@ esp_err_t i2c_dev_delete_mutex(i2c_dev_t *dev)
     dev->mutex = NULL;
     
     return ESP_OK;
+}
 
-    esp_err_t i2c_dev_take_mutex(i2c_dev_t *dev);
+esp_err_t i2c_dev_take_mutex(i2c_dev_t *dev)
+{
+    if (!dev)
     {
-        if (!dev)
-        {
-            ESP_LOGE(TAG, "I2C device descriptor is NULL");
-            return ESP_ERR_INVALID_ARG;
-        }
-
-        if (!dev->mutex)
-        {
-            ESP_LOGE(TAG, "I2C device mutex is not created");
-            return ESP_FAIL;
-        }
-
-        ESP_LOGV(TAG, "[0x%02x at %d] taking mutex", dev->addr, dev->port);
-
-        if (!xSemaphoreTake(dev->mutex, _i2c_timeout_ticks))
-        {
-            ESP_LOGE(TAG, "[0x%02x at %d] Failed to take I2C device mutex", dev->addr, dev->port);
-            return ESP_FAIL;
-        }
-        
-        return ESP_OK;
+        ESP_LOGE(TAG, "I2C device descriptor is NULL");
+        return ESP_ERR_INVALID_ARG;
     }
+
+    if (!dev->mutex)
+    {
+        ESP_LOGE(TAG, "I2C device mutex is not created");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGV(TAG, "[0x%02x at %d] taking mutex", dev->addr, dev->port);
+
+    if (!xSemaphoreTake(dev->mutex, _i2c_timeout_ticks))
+    {
+        ESP_LOGE(TAG, "[0x%02x at %d] Failed to take I2C device mutex", dev->addr, dev->port);
+        return ESP_FAIL;
+    }
+    
+    return ESP_OK;
 }
 
 esp_err_t i2c_dev_give_mutex(i2c_dev_t *dev)
@@ -182,7 +181,7 @@ esp_err_t i2c_dev_give_mutex(i2c_dev_t *dev)
 }
 
 //I2C functions
-intline static bool  _i2c_cfg_equal (const i2c_config_t *a, const i2c_config_t *b)
+inline static bool  _i2c_cfg_equal (const i2c_config_t *a, const i2c_config_t *b)
 {
     return a->mode == b->mode 
         && a->sda_io_num == b->sda_io_num 
@@ -191,6 +190,7 @@ intline static bool  _i2c_cfg_equal (const i2c_config_t *a, const i2c_config_t *
         && a->scl_pullup_en == b->scl_pullup_en 
         && a->master.clk_speed == b->master.clk_speed;
 }
+
 static esp_err_t _i2c_setup_port(const i2c_dev_t *dev)
 {
     if (dev->port >= I2C_NUM_MAX)
@@ -226,7 +226,7 @@ static esp_err_t _i2c_setup_port(const i2c_dev_t *dev)
         memcpy(&i2c_port_state[dev->port].config, &temp, sizeof(i2c_config_t));
         ESP_LOGD(TAG, "I2C driver on port %d successfully reconfigured ", dev->port);
 
-        int t 
+        int t; 
         if ((res = i2c_get_timeout(dev->port, &t)) != ESP_OK)
         {
             ESP_LOGE(TAG, "Failed to get I2C timeout on port %d", dev->port);
@@ -242,6 +242,7 @@ static esp_err_t _i2c_setup_port(const i2c_dev_t *dev)
 
         return ESP_OK;
 
+    }
 }
 
 esp_err_t i2c_dev_probe(i2c_dev_t *dev, i2c_dev_type_t operation_type)
@@ -251,22 +252,18 @@ esp_err_t i2c_dev_probe(i2c_dev_t *dev, i2c_dev_type_t operation_type)
         ESP_LOGE(TAG, "I2C device descriptor is NULL");
         return ESP_ERR_INVALID_ARG;
     }
-    if (!dev->mutex)
-    {
-        ESP_LOGE(TAG, "I2C device mutex is not created");
-        return ESP_FAIL;
-    }
+ 
+    _SemaphoreTake_i2c_dev(dev->port);
     
-    esp_err_t res; = _i2c_setup_port(dev);
+    esp_err_t res = _i2c_setup_port(dev);
     if (res == ESP_OK)
     {
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         i2c_master_start(cmd);
-        i2c_master_write_byte(cmd, (dev->addr << 1) | (operation_type == I2C_DEV_READ ? 1 : 0));
+        i2c_master_write_byte(cmd, (dev->addr << 1) | (operation_type == I2C_DEV_READ ? 1 : 0), true);
         i2c_master_stop(cmd);
 
-        res = i2x_master_cmd_begin(dev->port, cmd, pdMS_TO_TICKS(CONFIG_I2C_TIMEOUT_MS));
-
+        res = i2c_master_cmd_begin(dev->port, cmd, _i2c_timeout_ticks);
         i2c_cmd_link_delete(cmd);
     }
 
@@ -301,7 +298,7 @@ esp_err_t i2c_dev_read(const i2c_dev_t *dev, const void *out_data , size_t out_s
         i2c_master_read(cmd, in_data, in_size, I2C_MASTER_LAST_NACK);
         i2c_master_stop(cmd);
 
-        res = i2c_master_cmd_begin(dev->port, cmd, pdMS_TO_TICKS(CONFIG_I2C_TIMEOUT_MS));
+        res = i2c_master_cmd_begin(dev->port, cmd, _i2c_timeout_ticks);
         if(res != ESP_OK)
         {
             ESP_LOGE(TAG, "Could not read from device [0x%02x at %d]: %d (%s)", dev->addr, dev->port, res, esp_err_to_name(res));
@@ -315,7 +312,7 @@ esp_err_t i2c_dev_read(const i2c_dev_t *dev, const void *out_data , size_t out_s
 
 esp_err_t i2c_dev_write(const i2c_dev_t *dev, const void *out_reg, size_t out_reg_size, const void *out_data, size_t out_size)
 {
-    if(!dev || !out_data || !out_ize)
+    if(!dev || !out_data || !out_size)
     {
         ESP_LOGE(TAG, "Invalid arguments");
         return ESP_ERR_INVALID_ARG;
@@ -335,7 +332,7 @@ esp_err_t i2c_dev_write(const i2c_dev_t *dev, const void *out_reg, size_t out_re
         }
         i2c_master_write(cmd, (void *)out_data, out_size, true);
         i2c_master_stop(cmd);
-        res = i2c_master_cmd_begin(dev->port, cmd, pdMS_TO_TICKS(CONFIG_I2C_TIMEOUT_MS));
+        res = i2c_master_cmd_begin(dev->port, cmd, _i2c_timeout_ticks);
         if(res != ESP_OK)
         {
             ESP_LOGE(TAG, "Could not write to device [0x%02x at %d]: %d (%s)", dev->addr, dev->port, res, esp_err_to_name(res));

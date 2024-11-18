@@ -58,7 +58,7 @@ esp_err_t i2c_dev_give_mutex(i2c_dev_t *dev);
 // I2C functions
 esp_err_t i2c_dev_probe(i2c_dev_t *dev, i2c_dev_type_t operation_type);
 esp_err_t i2c_dev_read(const i2c_dev_t *dev, const void *out_data, size_t out_size, void *in_data, size_t in_size);
-esp_err_t i2c_dev_write(const i2c_dev_t *dev, const void *out_data, size_t out_size);
+esp_err_t i2c_dev_write(const i2c_dev_t *dev, const void *out_reg, size_t out_reg_size, const void *out_data, size_t out_size);
 esp_err_t i2c_dev_read_reg(const i2c_dev_t *dev, uint8_t reg, void *in_data, size_t in_size);
 esp_err_t i2c_dev_write_reg(const i2c_dev_t *dev, uint8_t reg, const void *out_data, size_t out_size);
 
