@@ -1,6 +1,8 @@
 // Sensors/BME280_sensor.c
 #include "BME280_sensor.h"
-#include "main/Libraries/BME280_SensorAPI/bme280.h"
+#include "bme280.h"
+#include "bme280_defs.h"
+#include "../config.h"
 #include <stdio.h>
 
 // I2C address for BME280 sensor
@@ -20,7 +22,7 @@ int8_t user_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *in
     i2c_master_write_byte(cmd, (BME280_I2C_ADDRESS << 1) | I2C_MASTER_READ, true);
     i2c_master_read(cmd, reg_data, len, I2C_MASTER_LAST_NACK);
     i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
+    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
     return ret == ESP_OK ? BME280_OK : BME280_E_COMM_FAIL;
 }
@@ -34,25 +36,24 @@ int8_t user_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, v
     i2c_master_write_byte(cmd, reg_addr, true);
     i2c_master_write(cmd, reg_data, len, true);
     i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
+    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
     return ret == ESP_OK ? BME280_OK : BME280_E_COMM_FAIL;
 }
 
 // Delay function
 void user_delay_ms(uint32_t period, void *intf_ptr) {
-    vTaskDelay(period / portTICK_RATE_MS);
+    vTaskDelay(period / portTICK_PERIOD_MS);
 }
 
 // Sensor configuration function
 void configBME280(void) {
     int8_t rslt;
-    bme280_dev.dev_id = BME280_I2C_ADDRESS;
     bme280_dev.intf = BME280_I2C_INTF;
     bme280_dev.read = user_i2c_read;
     bme280_dev.write = user_i2c_write;
     bme280_dev.delay_us = user_delay_ms;
-    bme280_dev.intf_ptr = (void *)I2C_NUM_0;
+    bme280_dev.intf_ptr = (void *)BME280_I2C_ADDRESS;
 
     rslt = bme280_init(&bme280_dev);
     if (rslt != BME280_OK) {
@@ -61,20 +62,21 @@ void configBME280(void) {
     }
 
     uint8_t settings_sel;
-    bme280_dev.settings.osr_h = BME280_OVERSAMPLING_1X;
-    bme280_dev.settings.osr_p = BME280_OVERSAMPLING_16X;
-    bme280_dev.settings.osr_t = BME280_OVERSAMPLING_2X;
-    bme280_dev.settings.filter = BME280_FILTER_COEFF_16;
-    bme280_dev.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
+    struct bme280_settings settings;
+    settings.osr_h = BME280_OVERSAMPLING_1X;
+    settings.osr_p = BME280_OVERSAMPLING_16X;
+    settings.osr_t = BME280_OVERSAMPLING_2X;
+    settings.filter = BME280_FILTER_COEFF_16;
+    settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
 
-    settings_sel = BME280_OSR_PRESS_SEL | BME280_OSR_TEMP_SEL | BME280_OSR_HUM_SEL | BME280_FILTER_SEL | BME280_STANDBY_SEL;
-    rslt = bme280_set_sensor_settings(settings_sel, &bme280_dev);
+    settings_sel = BME280_SETTINGS_SEL;
+    rslt = bme280_set_sensor_settings(settings_sel, &settings, &bme280_dev);
     if (rslt != BME280_OK) {
         printf("Failed to set BME280 sensor settings\n");
         return;
     }
 
-    rslt = bme280_set_sensor_mode(BME280_NORMAL_MODE, &bme280_dev);
+    rslt = bme280_set_sensor_mode(BME280_POWERMODE_NORMAL, &bme280_dev);
     if (rslt != BME280_OK) {
         printf("Failed to set BME280 sensor mode\n");
         return;

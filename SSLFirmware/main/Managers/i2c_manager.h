@@ -8,6 +8,12 @@
 #include <freertos/queue.h>
 #include <freertos/semphr.h>
 #include <driver/i2c.h>
+#include <stdio.h>
+#include "esp_mac.h"
+#include "../Sensors/BME280_sensor.h"
+#include "../Sensors/Fake_Sensor.h"
+#include "../config.h" // Include config.h for MAX_SENSORS_PER_BUS
+
 
 // Define sensor event types
 typedef enum {
@@ -21,6 +27,9 @@ typedef enum {
 
 // Function pointer type for sensor handlers
 typedef void (*SensorHandler)(void);
+
+// Lookup table for sensor handlers
+extern SensorHandler sensorHandlers[SENSOR_EVENT_COUNT];
 
 // Function pointer type for sensor configuration functions
 typedef void (*SensorConfig)(void);

@@ -1,6 +1,24 @@
 // i2c_manager.c
 #include "i2c_manager.h"
-#include <stdio.h>
+
+
+// Lookup table for sensor handlers
+SensorHandler sensorHandlers[SENSOR_EVENT_COUNT] = {
+    handleBME280,
+    handleFakeSensor, // Set sensor 2 as fake sensor
+    handleFakeSensor, // Set sensor 3 as fake sensor
+    handleFakeSensor, // Set sensor 4 as fake sensor
+    handleFakeSensor  // Set sensor 5 as fake sensor
+};
+
+// Lookup table for sensor intervals
+const uint32_t sensorIntervals[SENSOR_EVENT_COUNT] = {
+    BME280_INTERVAL,
+    Fake_INTERVAL,
+    Fake_INTERVAL,
+    Fake_INTERVAL,
+    Fake_INTERVAL
+};
 
 // Function to add sensor event to the queue
 void addSensorEventToQueue(QueueHandle_t queue, SensorEventType eventType) {
