@@ -10,10 +10,9 @@
 #include <driver/i2c.h>
 #include <stdio.h>
 #include "esp_mac.h"
-#include "../Sensors/BME280_sensor.h"
-#include "../Sensors/Fake_Sensor.h"
-#include "../config.h" // Include config.h for MAX_SENSORS_PER_BUS
-
+#include "Sensors/BME280_Sensor/BME280_sensor.h"
+#include "Sensors/Fake_Sensor/Fake_Sensor.h"
+#include "config.h" // Include config.h for MAX_SENSORS_PER_BUS
 
 // Define sensor event types
 typedef enum {
@@ -31,6 +30,8 @@ typedef void (*SensorHandler)(void);
 // Lookup table for sensor handlers
 extern SensorHandler sensorHandlers[SENSOR_EVENT_COUNT];
 
+extern const uint32_t sensorIntervals[SENSOR_EVENT_COUNT];
+
 // Function pointer type for sensor configuration functions
 typedef void (*SensorConfig)(void);
 
@@ -45,6 +46,9 @@ typedef struct {
     SensorConfig sensorConfigs[MAX_SENSORS_PER_BUS];
     uint8_t sensorCount;
 } I2CBusConfig;
+
+// Declare sensorIntervals as an external variable
+extern const uint32_t sensorIntervals[SENSOR_EVENT_COUNT];
 
 // Function prototypes
 void addSensorEventToQueue(QueueHandle_t queue, SensorEventType eventType);
