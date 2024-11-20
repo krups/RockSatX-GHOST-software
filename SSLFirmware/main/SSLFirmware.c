@@ -16,22 +16,13 @@
 #include "i2c_manager.h"
 #include "Fake_Sensor.h"
 
-// Define sensor intervals (in milliseconds)
-const uint32_t sensorIntervals[SENSOR_EVENT_COUNT] = {
-    [SENSOR1_EVENT] = 1000,
-    [SENSOR2_EVENT] = 2000,
-    [SENSOR3_EVENT] = 3000,
-    [SENSOR4_EVENT] = 4000,
-    [SENSOR5_EVENT] = 5000
-};
-
 void app_main() {
     // Define I2C bus configurations
     I2CBusConfig bus1Config = {
         .i2cPort = I2C_NUM_0,
         .sensorEvents = {SENSOR1_EVENT, SENSOR2_EVENT},
         .sensorIntervals = {sensorIntervals[SENSOR1_EVENT], sensorIntervals[SENSOR2_EVENT]},
-        .sensorConfigs = {configBME280, configFakeSensor}, // Set sensors 1-2 config
+        .sensorConfigs = {configFakeSensor, configFakeSensor}, // Set sensors 1-2 config as fake sensors
         .sensorCount = 2
     };
 

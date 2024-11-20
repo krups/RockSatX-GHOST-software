@@ -17,6 +17,7 @@
         "i2c.h": "c",
         "stdio.h": "c",
         "i2c_manager.h": "c",
-        "bme280_sensor.h": "c"
+        "bme280_sensor.h": "c",
+        "fake_sensor.h": "c"
     }
 }
