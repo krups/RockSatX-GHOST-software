@@ -28,8 +28,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define Fempto_KANGS 
+#define FULL_FEATURE_DEBUG 
 
+// Define the maximum number of sensors per bus
+#define MAX_SENSORS_PER_BUS 5
 
 // Constant I2C Addresses
     //Move to each sensor file
@@ -39,8 +41,22 @@
 #define CONFIG_I2CDEV_TIMEOUT 1000
 
 #if defined(KFC_KANGS)
+    // Define sensor polling intervals in milliseconds
+    #define SENSOR1_INTERVAL 1000
+    #define SENSOR2_INTERVAL 2000
+    #define SENSOR3_INTERVAL 1500
+    #define SENSOR4_INTERVAL 2500
+    #define SENSOR5_INTERVAL 3000
+
+    #define BME280_SETTINGS_SEL (BME280_PRESS | BME280_TEMP | BME280_HUM | BME280_FILTER_COEFF_16 | BME280_STANDBY)
 
 #elif defined(Fempto_KANGS)
+    // Define sensor polling intervals in milliseconds
+    #define SENSOR1_INTERVAL 1000
+    #define SENSOR2_INTERVAL 2000
+    #define SENSOR3_INTERVAL 1500
+    #define SENSOR4_INTERVAL 2500
+    #define SENSOR5_INTERVAL 3000
 
     #define I2C1 
     #define SPI1 
@@ -77,9 +93,81 @@
     #define LORA1_DIO1 22
     #define LORA1_DIO2 23
 
+    #define BME280_SETTINGS_SEL (BME280_PRESS | BME280_TEMP | BME280_HUM | BME280_FILTER_COEFF_16 | BME280_STANDBY)
+
 #elif defined(RST_KANGS)
+    // Define sensor polling intervals in milliseconds
+    #define SENSOR1_INTERVAL 1000
+    #define SENSOR2_INTERVAL 2000
+    #define SENSOR3_INTERVAL 1500
+    #define SENSOR4_INTERVAL 2500
+    #define SENSOR5_INTERVAL 3000
+
+    #define BME280_SETTINGS_SEL (BME280_PRESS | BME280_TEMP | BME280_HUM | BME280_FILTER_COEFF_16 | BME280_STANDBY)
 
 #elif defined(GS)
+    // Define sensor polling intervals in milliseconds
+    #define SENSOR1_INTERVAL 1000
+    #define SENSOR2_INTERVAL 2000
+    #define SENSOR3_INTERVAL 1500
+    #define SENSOR4_INTERVAL 2500
+    #define SENSOR5_INTERVAL 3000
+
+    #define BME280_SETTINGS_SEL (BME280_PRESS | BME280_TEMP | BME280_HUM | BME280_FILTER_COEFF_16 | BME280_STANDBY)
+
+#elif defined(FULL_FEATURE_DEBUG)
+    // Define sensor polling intervals in milliseconds
+    #define BME280_INTERVAL 1000
+    #define Fake_INTERVAL 2000
+
+
+    #define I2C1
+    #define I2C2
+    #define I2C3
+    #define I2C4
+
+    #define SPI1
+    #define SPI2
+
+    #define LORA
+    #define SENSORS
+
+    // USB Pins
+    #define USB1_DP 14
+    #define USB1_DN 13
+
+    // I2C pins
+    #define SDA1_PIN 21
+    #define SCL1_PIN 22
+    #define SDA2_PIN 25
+    #define SCL2_PIN 26
+    #define SDA3_PIN 27
+    #define SCL3_PIN 32
+    #define SDA4_PIN 33
+    #define SCL4_PIN 34
+
+    // I2C Sensors
+    #define BME280_I2C 1
+    #define BNO086_I2C 1
+
+    // SPI Pins
+    #define MOSI1_PIN 18
+    #define MISO1_PIN 19
+    #define SCK1_PIN 17
+    #define MOSI2_PIN 23
+    #define MISO2_PIN 25
+    #define SCK2_PIN 26
+
+    // BN0086 Pins
+    #define BNO086_HINTN 4
+    #define BNO086_RESET 5
+
+    // LoRa Pins
+    #define LORA1_TXEN 39
+    #define LORA1_RXEN 38
+    #define LORA1_RESET 20
+
+    #define BME280_SETTINGS_SEL (BME280_PRESS | BME280_TEMP | BME280_HUM | BME280_FILTER_COEFF_16 | BME280_STANDBY_TIME_0_5_MS)
 
 #else
     #error "No valid configuration defined"

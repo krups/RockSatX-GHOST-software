@@ -7,8 +7,7 @@
             "includePath": [
                 "${config:idf.espIdfPath}/components/**",
                 "${config:idf.espIdfPathWin}/components/**",
-                "${workspaceFolder}/**",
-                "/Users/user/esp/esp-idf/components/esp_driver_i2c/include"
+                "${workspaceFolder}/**"
             ],
             "browse": {
                 "path": [
