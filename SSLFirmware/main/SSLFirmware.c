@@ -15,7 +15,7 @@
 
 #include <driver/i2c.h>
 #include <stdio.h>
-#include "BME280_sensor/BME280_sensor.h"
+#include "Sensors/BME280_sensor.h"
 #include "i2c_manager.h"
 #include "Fake_Sensor.h"
 
