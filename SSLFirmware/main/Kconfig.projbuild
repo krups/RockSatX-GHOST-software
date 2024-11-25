@@ -1,0 +1,45 @@
+menu "Hardware Configuration"
+
+config HARDWARE
+    string "Select Hardware"
+    default "FULL_FEATURE_DEBUG"
+    help
+        Select the hardware configuration for the build.
+
+choice
+    prompt "Hardware Options"
+    default KFC_KANGS
+
+config KFC_KANGS
+    bool "Kentucky Flight Computer for KANGS"
+    select HARDWARE
+    help
+        Configuration for Kentucky Flight Computer for KANGS
+
+config Fempto_KANGS
+    bool "Fempto Sats for KANGS"
+    select HARDWARE
+    help
+        Configuration for Fempto Sats for KANGS
+
+config RST_KANGS
+    bool "Rocketstation Transmitter for KANGS"
+    select HARDWARE
+    help
+        Configuration for Rocketstation Transmitter for KANGS
+
+config GS
+    bool "Ground Station"
+    select HARDWARE
+    help
+        Configuration for Ground Station
+
+config FULL_FEATURE_DEBUG
+    bool "Full Feature Debug"
+    select HARDWARE
+    help
+        Configuration for Full Feature Debug
+
+endchoice
+
+endmenu
