@@ -1,5 +1,6 @@
-set(srcs "SSLFirmware.c" "i2c_manager.c" "Fake_Sensor.c")
+set(srcs "SSLFirmware.c")
 
 idf_component_register(SRCS ${srcs}
                     INCLUDE_DIRS "."
-                    PRIV_REQUIRES driver)
+                    PRIV_REQUIRES driver
+                    REQUIRES Manager Sensors)
