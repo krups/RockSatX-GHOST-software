@@ -8,7 +8,7 @@ config HARDWARE
 
 choice
     prompt "Hardware Options"
-    default KFC_KANGS
+    default FULL_FEATURE_DEBUG
 
 config KFC_KANGS
     bool "Kentucky Flight Computer for KANGS"

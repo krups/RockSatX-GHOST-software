@@ -4,8 +4,8 @@
 
 // Lookup table for sensor handlers
 SensorHandler sensorHandlers[SENSOR_EVENT_COUNT] = {
+    handleBME280, // Set sensor 1 as BME280 sensor
     handleFakeSensor,
-    handleFakeSensor, // Set sensor 2 as fake sensor
     handleFakeSensor, // Set sensor 3 as fake sensor
     handleFakeSensor, // Set sensor 4 as fake sensor
     handleFakeSensor  // Set sensor 5 as fake sensor
@@ -13,7 +13,7 @@ SensorHandler sensorHandlers[SENSOR_EVENT_COUNT] = {
 
 // Lookup table for sensor intervals
 const uint32_t sensorIntervals[SENSOR_EVENT_COUNT] = {
-    Fake_INTERVAL,
+    BME280_INTERVAL, // Set interval for BME280 sensor
     Fake_INTERVAL,
     Fake_INTERVAL,
     Fake_INTERVAL,

@@ -12,7 +12,7 @@
 #include "freertos/semphr.h"
 #include <driver/i2c.h>
 #include <stdio.h>
-//#include "BME280_Sensor.h"
+#include "BME280_Sensor.h"
 #include "i2c_manager.h"
 #include "Fake_Sensor.h"
 
@@ -22,7 +22,7 @@ void app_main() {
         .i2cPort = I2C_NUM_0,
         .sensorEvents = {SENSOR1_EVENT, SENSOR2_EVENT},
         .sensorIntervals = {sensorIntervals[SENSOR1_EVENT], sensorIntervals[SENSOR2_EVENT]},
-        .sensorConfigs = {configFakeSensor, configFakeSensor}, // Set sensors 1-2 config as fake sensors
+        .sensorConfigs = {configBME280, configFakeSensor}, // Set sensor 1 config as BME280 sensor
         .sensorCount = 2
     };
 
