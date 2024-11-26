@@ -10,7 +10,7 @@
 #include <driver/i2c.h>
 #include <stdio.h>
 #include "esp_mac.h"
-//#include "BME280_sensor.h"
+#include "BME280_sensor.h"
 #include "Fake_Sensor.h"
 #include "config.h" // Include config.h for MAX_SENSORS_PER_BUS
 

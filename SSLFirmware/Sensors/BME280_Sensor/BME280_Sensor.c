@@ -1,9 +1,5 @@
 // Sensors/BME280_sensor.c
 #include "BME280_sensor.h"
-#include "bme280.h"
-#include "bme280_defs.h"
-#include "config.h"
-#include <stdio.h>
 
 // I2C address for BME280 sensor
 #define BME280_I2C_ADDRESS BME280_I2C_ADDR_PRIM
