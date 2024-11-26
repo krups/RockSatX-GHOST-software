@@ -27,7 +27,7 @@
 \par This software is to support the KRUPS missions. The current mission is KRUPS Aboard Norwegian GhostSat (KANGS). The hardware paradim is based around an ESP32-S3. 
 \par This work is porting Matt Ruffner's firmware for Adafruit Feather M0/M4 to the ESP32-S3. This including switching from the Arduino IDE to ESP-IDF.
 \par The goal of this project is to make the firmware more modular and configurable for each mission and hardware.
-\par The first chapter of this document outlines the over all architechure design and background information for this project. The second chapter rt details each libraries, drives, wrappers, and other software components that we wrote for this project. It provides design decisions and the reasoning behind them aswell as how to interface with them. The third and on details the software requirements for each hardware component for each mission.
+\par The first chapter of this document outlines the overall architecture design and background information for this project. The second chapter provides information for writing firmware for this project. The third chapter details each library, driver, wrapper, and other software components that we wrote for this project. It provides design decisions and the reasoning behind them as well as how to interface with them. The fourth chapter and beyond detail the software requirements for each hardware component for each mission.
 
 \tableofcontents
 
@@ -52,12 +52,14 @@
 
 \par In the figure \ref{fig:firmware-architecture}, the main tasks there are four types of tasks. 
 \subsection{Task}
-\subsubsection{Sensor Tasks}
-\par Each sensor task manages one sensor or group of sensors, see \ref{fig:sensor-architecture}. At startup it configures the sensors with the necessary parameters, then it calls a looping task. That task, takes the semaphore for the used serial communication interface (I2C, SPI, UART, etc). It sends the command to the sensor to get the data, reads the response, and then releases the semaphore. The task then sends the data to the packet build tasks queues.
+\subsubsection{Sensor Bus Tasks}
+\par Each sensor bus task manages a single hardware bus (I2C, SPI, UART, etc). At startup, it configures the sensors with the necessary parameters, then it calls a looping task. That task takes the semaphore for the used serial communication interface. It sends the command to the sensor to get the data, reads the response, and then releases the semaphore. The task then sends the data to the packet build tasks queues.
+
+\par The sensor manager works by creating a configuration for each bus, including the sensors connected to it, their intervals, and their handlers. It uses FreeRTOS timers to periodically trigger sensor events, which are added to a queue. The bus task processes these events, taking a mutex to ensure exclusive access to the bus, and calls the appropriate sensor handler from a lookup table. The handlers are responsible for reading data from the sensors and performing any necessary processing.
 
 \begin{figure} [H]
     \centering
-    \includegraphics[width=0.8\textwidth]{images/sensor-architechure.png}
+    \includegraphics[width=0.15\textwidth]{images/sensor-architechure.png}
     \caption{Sensor Task Architecture}
     \label{fig:sensor-architecture} 
 \end{figure} 
@@ -68,30 +70,137 @@
 
 \subsection{Middleware}
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Writing Firmware %%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Writing Firmware}
+
+\section{Adding Components}
+
+\par The current file stucture of SLLFirmware is as follows. It has 3 compoents the main firmware, the sensor drivers, and the manager drivers. If another compoent is to be added make sure to append it to the SSLFirmware/CMakeLists.txt file. Then create a folder for the component in the SSLFirmware folder. In that folder create a CMakeLists.txt file and the source files for the component. 
+
+\begin{verbatim}
+    SSLFirmware/
+        - CMakeLists.txt
+        - sdkconfig
+        - main/
+            - CMakeLists.txt
+            - SSLFirmware.c
+            - config.h
+        - Manager/
+            - i2c_manager/
+                - CMakeLists.txt
+                - i2c_manager.c
+                - i2c_manager.h
+        - Sensors/
+            - CMakeLists.txt
+            - BME280_Sensor/
+                - CMakeLists.txt
+                - BME280_Sensor.c
+                - BME280_Sensor.h
+                - BME280_API/
+            - Fake_Sensor/
+                - CMakeLists.txt
+                - Fake_Sensor.c
+                - Fake_Sensor.h
+    \end{verbatim}
+
+\par The CMakeLists.txt file for the project should look like the following. The EXTRA\_COMPONENT\_DIRS variable is used to add the components to the project. The include statement is used to include the project.cmake file from the ESP-IDF tools. The project name is set to SSLFirmware.
+
+\begin{verbatim}
+    cmake_minimum_required(VERSION 3.16)
+
+    list(APPEND EXTRA_COMPONENT_DIRS ${CMAKE_SOURCE_DIR}/Manager)
+    list(APPEND EXTRA_COMPONENT_DIRS ${CMAKE_SOURCE_DIR}/Sensors)
+
+    include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+
+project(SSLFirmware)
+\end{verbatim}
+
+\par The CMakeList.txt file for each componet should look like the following. It specifies the source files for the component and the include directories for the component. The idf\_component\_register function is used to register the component with the project. The SRCS variable is used to specify the source files for the component. The INCLUDE\_DIRS variable is used to specify the include directories for the component. The PRIV\_REQUIRES variable is used to specify the components that the component requires. The REQUIRES variable is used to specify the components that the component depends on. 
+
+\begin{verbatim}
+    idf_component_register(SRCS "i2c_manager/i2c_manager" 
+                            INCLUDE_DIRS "i2c_manager" 
+                            PRIV_REQUIRES driver Sensors
+                            REQUIRES main)
+\end{verbatim}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Software Componets %%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Software Components}
+\section{Configuration}
 
-\section{Wrappers}
+\par To select the hardware that the firmware will use, use the menuconfig tool. To access the menuconfig tool, run the following command in the terminal. The options is under Hardware Configuration see figure \ref{fig:idfMenuconfig}. Then select the hardware that you want to use and save the configeration see figure \ref{fig:idfMenuconfig_hardware_options}. Later additions will have a selection for the mission then for each hardware component if this list gets too long.
 
-\subsection{I2C Wrapper}
-\par the I2C wrapper is a thread safe wrapper of the I2C driver from ESP-IDF. It mostly uses semaphores to allow and disallow access to th i2c bus. This is not the optimal implementation. If needing higher effiency a single thread should manage the each i2c bus.
-\par Note the timeout ticks is hard  defined to 1000 in the I2C wrapper header file. 
-\par this wrapper is based on the i2cdev library from UncleRus.
+\begin{center}
+\noindent\fbox{%
+    \parbox{\textwidth}{%
+        \texttt{idf.py menuconfig}
+    }%
+}
+\end{center}
 
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/idfMenuconfig.png}
+    \caption{IDF Menuconfig}
+    \label{fig:idfMenuconfig} 
+\end{figure} 
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/idfMenuconfig_HardwareOptions.png}
+    \caption{Hardware options}
+    \label{fig:idfMenuconfig_hardware_options} 
+\end{figure} 
+
+\par the specific mission parameters (pinout, sensor configuration, etc) are set in the config.h file.
+
+
+
+\section{Managers}
+
+\subsection{I2C Manager}
+
+\par The I2C manager is responsible for managing the I2C bus and interfacing with sensors connected to it. It provides a high-level interface for configuring sensors, setting up timers, and handling sensor events. The I2C manager is designed to be modular and extensible, allowing for easy integration of new sensors and bus configurations.
+
+\par The I2C manager works as follows:
+\begin{itemize}
+    \item **Initialization**: The I2C manager initializes the I2C bus with the specified configurations. It sets up the I2C port, creates a queue for sensor events, and initializes a mutex for bus access control.
+    \item **Sensor Configuration**: Before starting the timers, the I2C manager configures each sensor connected to the bus. This involves calling the sensor-specific configuration functions.
+    \item **Timer Creation**: The I2C manager creates FreeRTOS timers for each sensor. These timers are set to trigger at specified intervals, defined in the sensor configuration. When a timer expires, it adds a sensor event to the event queue.
+    \item **Event Handling**: The I2C manager runs a task that continuously waits for sensor events from the queue. When an event is received, it takes the mutex to gain exclusive access to the I2C bus, calls the appropriate sensor handler from the lookup table, and then releases the mutex.
+\end{itemize}
+
+\par Note that the timeout ticks are hard-defined to 1000 in the I2C manager header file. This value can be adjusted based on the specific requirements of the application.
+
+\par The `i2cBusTask` is created as follows:
 
 \begin{itemize}
-    \item \textbf{i2c\_dev\_init}: Initializes the I2C device, setting up the necessary configurations.
-    \item \textbf{i2c\_dev\_done}: Deinitializes the I2C device, releasing resources.
-    \item \textbf{i2c\_dev\_create\_mutex}: Creates a mutex for the I2C device to ensure thread-safe operations.
-    \item \textbf{i2c\_dev\_delete\_mutex}: Deletes the mutex associated with the I2C device.
-    \item \textbf{i2c\_dev\_take\_mutex}: Takes the mutex for the I2C device, blocking other threads from accessing it.
-    \item \textbf{i2c\_dev\_give\_mutex}: Releases the mutex for the I2C device, allowing other threads to access it.
-    \item \textbf{i2c\_dev\_probe}: Checks if the I2C device is available and ready for communication.
-    \item \textbf{i2c\_dev\_read}: Reads data from the I2C device.
-    \item \textbf{i2c\_dev\_write}: Writes data to the I2C device.
-    \item \textbf{i2c\_dev\_read\_reg}: Reads data from a specific register of the I2C device.
-    \item \textbf{i2c\_dev\_write\_reg}: Writes data to a specific register of the I2C device.
+    \item **I2CBusConfig**: This structure is used to configure the I2C bus. It includes the I2C port, sensor events, sensor intervals, sensor configuration functions, and the number of sensors. For example:
+    \begin{verbatim}
+    I2CBusConfig bus1Config = {
+        .i2cPort = I2C_NUM_0,
+        .sensorEvents = {SENSOR1_EVENT, SENSOR2_EVENT},
+        .sensorIntervals = {sensorIntervals[SENSOR1_EVENT], sensorIntervals[SENSOR2_EVENT]},
+        .sensorConfigs = {SENSOR1_config, SENSOR2_config},
+        .sensorCount = 2
+    };
+    \end{verbatim}
+    \item **Event Queue**: An event queue is created for each I2C bus to hold sensor events. This queue is used to pass events from the timers to the I2C bus task. For example:
+    \begin{verbatim}
+    bus1Config.eventQueue = xQueueCreate(10, sizeof(SensorEventType));
+    \end{verbatim}
+    \item **Mutex**: A mutex is created for each I2C bus to ensure exclusive access to the bus. This prevents conflicts when multiple tasks try to access the bus simultaneously. For example:
+    \begin{verbatim}
+    bus1Config.mutex = xSemaphoreCreateMutex();
+    \end{verbatim}
+    \item **Task Creation**: The `i2cBusTask` is created using the `xTaskCreate` function. This function takes the task function, task name, stack size, task parameters, task priority, and task handle as arguments. For example:
+    \begin{verbatim}
+    xTaskCreate(i2cBusTask, "I2CBusTask1", 2048, &bus1Config, 5, NULL);
+    \end{verbatim}
 \end{itemize}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Missions %%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{KRUPS Aboard Norwegian GhostSat (KANG)}
 \section{Kentucky Flight Computer (KFC) Requirements}

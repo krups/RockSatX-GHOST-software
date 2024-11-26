@@ -4,7 +4,6 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.16)
 
-# Append to EXTRA_COMPONENT_DIRS instead of overwriting it
 list(APPEND EXTRA_COMPONENT_DIRS ${CMAKE_SOURCE_DIR}/Manager)
 list(APPEND EXTRA_COMPONENT_DIRS ${CMAKE_SOURCE_DIR}/Sensors)
 
