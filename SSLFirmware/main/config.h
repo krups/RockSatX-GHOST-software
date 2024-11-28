@@ -28,12 +28,14 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define FULL_FEATURE_DEBUG
+#define FULL_FEATURE_DEBUG 
+
 // Define the maximum number of sensors per bus
 #define MAX_SENSORS_PER_BUS 5
 
 // Constant I2C Addresses
- 
+    //Move to each sensor file
+#define BME280_I2C_ADDRESS 0x76
 #define BN0066_I2C_ADDRESS 0x4A
 
 #define CONFIG_I2CDEV_TIMEOUT 1000
@@ -78,6 +80,7 @@
     #define MOSI1_PIN 18
     #define MISO1_PIN 19
     #define SCK1_PIN 17
+	   #define NSS1_PIN 15
     
     // BN0086 Pins for 
     #define BNO086_HINTN 4
@@ -101,7 +104,56 @@
     #define SENSOR4_INTERVAL 2500
     #define SENSOR5_INTERVAL 3000
 
-    #define BME280_SETTINGS_SEL (BME280_PRESS | BME280_TEMP | BME280_HUM | BME280_FILTER_COEFF_16 | BME280_STANDBY)
+	//communications
+	#define I2C1
+	#define SPI2
+	#define UART1
+	#define UART2
+	#define UART4
+	
+	#define LORA
+	#define SENSORS
+	
+	// USB pins
+	#define USB1_DP 14
+	#define USB1_DN 13
+	
+	//I2C pins
+	#define SDA1_PIN 36
+	#define SCL1_PIN 37
+	
+	// I2C sensors
+	#define BME280_I2C 1
+ #define BNO086_I2C 1
+	
+	// SPI pins
+	#define MOSI1_PIN 18
+	#define MISO1_PIN 19
+	#define SCK1_PIN 17
+	#define NSS1_PIN 15
+	
+	// BN0086 pins
+	#define BNO086_HINTN 39
+	#define BNO086_RESET 38
+	
+	// LoRa pins
+	#define LORA1_TXEN 5
+ #define LORA1_RXEN 4
+ #define LORA1_RESET 20
+ #define LORA1_BUSY 21
+ #define LORA1_DIO1 22
+ #define LORA1_DIO2 23
+	
+	// UART pins
+	#define UART_TX1 6
+	#define UART_TX2 7
+	#define UART_TX4 10
+	#define UART_RX4 11
+	
+	// radio pin
+	#define TE_SENSE 8
+
+#define BME280_SETTINGS_SEL (BME280_PRESS | BME280_TEMP | BME280_HUM | BME280_FILTER_COEFF_16 | BME280_STANDBY)
 
 #elif defined(GS)
     // Define sensor polling intervals in milliseconds
@@ -126,6 +178,10 @@
 
     #define SPI1
     #define SPI2
+
+	   #define UART1
+	   #define UART2
+	   #define UART4
 
     #define LORA
     #define SENSORS
@@ -152,6 +208,7 @@
     #define MOSI1_PIN 18
     #define MISO1_PIN 19
     #define SCK1_PIN 17
+	   #define NSS1_PIN 15
     #define MOSI2_PIN 23
     #define MISO2_PIN 25
     #define SCK2_PIN 26
@@ -164,6 +221,15 @@
     #define LORA1_TXEN 39
     #define LORA1_RXEN 38
     #define LORA1_RESET 20
+	
+	  // UART pins
+	  #define UART_TX1 6
+	  #define UART_TX2 7
+	  #define UART_TX4 10
+	  #define UART_RX4 11
+	
+	  // radio pin
+	  #define TE_SENSE 8
 
     #define BME280_SETTINGS_SEL (BME280_PRESS | BME280_TEMP | BME280_HUM | BME280_FILTER_COEFF_16 | BME280_STANDBY_TIME_0_5_MS)
 
@@ -175,4 +241,3 @@
 
 
 #endif
-
