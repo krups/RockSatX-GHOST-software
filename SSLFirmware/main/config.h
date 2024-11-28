@@ -110,8 +110,6 @@
 	#define UART1
 	#define UART2
 	#define UART4
-	//radio telemetry
-	#define RAD_TLM
 	
 	#define LORA
 	#define SENSORS
@@ -184,9 +182,6 @@
 	   #define UART1
 	   #define UART2
 	   #define UART4
-
-	   //radio telemetry
-	   #define RAD_TLM
 
     #define LORA
     #define SENSORS
