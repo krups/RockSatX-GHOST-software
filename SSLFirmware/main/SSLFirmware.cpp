@@ -48,20 +48,8 @@ extern "C" void app_main() {
     // xTaskCreate(i2cBusTask, "I2CBusTask1", 2048, &bus1Config, 5, NULL);
     // xTaskCreate(i2cBusTask, "I2CBusTask2", 2048, &bus2Config, 5, NULL);
     
-    SemaphoreHandle_t one = xSemaphoreCreateCounting(7,3);
-    BucketManager bmanager;
-    std::string  st = "one";
-    std::vector<int> si = {100,100,100};
-    bmanager._declare_group(st,si,sizeof(int));
-    bmanager._debug_print();
-    void bmanager_test_task(void *pvParameters){
-        int seven = 7;
-        void* filler = &seven; 
-        while(true){
-            QueueHandle_t q = bmanager._get_read_partition("one");
-            xQueueSend(q,filler,10);
-        }
-    }
+    
+    
     
 }
 
