@@ -12,11 +12,13 @@
 #include "freertos/semphr.h"
 #include <driver/i2c.h>
 #include <stdio.h>
+#include "BucketManager.h"
+#include <string>
 // #include "BME280_Sensor.h"
 // #include "i2c_manager.h"
 // #include "Fake_Sensor.h"
 
-extern void app_main(void) {
+extern "C" void app_main() {
     // Define I2C bus configurations
     // I2CBusConfig bus1Config = {
     //     .i2cPort = I2C_NUM_0,
@@ -45,6 +47,21 @@ extern void app_main(void) {
     // Create tasks for each I2C bus
     // xTaskCreate(i2cBusTask, "I2CBusTask1", 2048, &bus1Config, 5, NULL);
     // xTaskCreate(i2cBusTask, "I2CBusTask2", 2048, &bus2Config, 5, NULL);
+    
     SemaphoreHandle_t one = xSemaphoreCreateCounting(7,3);
+    BucketManager bmanager;
+    std::string  st = "one";
+    std::vector<int> si = {100,100,100};
+    bmanager._declare_group(st,si,sizeof(int));
+    bmanager._debug_print();
+    void bmanager_test_task(void *pvParameters){
+        int seven = 7;
+        void* filler = &seven; 
+        while(true){
+            QueueHandle_t q = bmanager._get_read_partition("one");
+            xQueueSend(q,filler,10);
+        }
+    }
+    
 }
 

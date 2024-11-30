@@ -7,8 +7,7 @@
             "includePath": [
                 "${config:idf.espIdfPath}/components/**",
                 "${config:idf.espIdfPathWin}/components/**",
-                "${workspaceFolder}/**",
-                "C:/Users/7ross/esp/v5.3.1/esp-idf/components/esp_hw_support/include"
+                "${workspaceFolder}/**"
             ],
             "browse": {
                 "path": [
