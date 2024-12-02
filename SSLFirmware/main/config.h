@@ -35,7 +35,7 @@
 
 // Constant I2C Addresses
     //Move to each sensor file
-#define BME280_I2C_ADDRESS 0x76
+
 #define BN0066_I2C_ADDRESS 0x4A
 
 #define CONFIG_I2CDEV_TIMEOUT 1000
