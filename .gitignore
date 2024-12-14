@@ -28,3 +28,4 @@ build/
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+.vscode/settings.json

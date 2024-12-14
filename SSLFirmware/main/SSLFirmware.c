@@ -13,12 +13,12 @@
 #include <driver/i2c.h>
 #include <stdio.h>
 #include "BucketManager.h"
-#include <string>
+#include <string.h>
 // #include "BME280_Sensor.h"
 // #include "i2c_manager.h"
 // #include "Fake_Sensor.h"
 
-extern "C" void app_main() {
+void app_main() {
     // Define I2C bus configurations
     // I2CBusConfig bus1Config = {
     //     .i2cPort = I2C_NUM_0,
