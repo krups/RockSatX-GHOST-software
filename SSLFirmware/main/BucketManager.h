@@ -5,12 +5,18 @@ typedef struct bucket bucket;
 typedef struct topic topic;
 
 // returns an opaque pointer to a bucket by looking for the most full bucket
-bucket* get_read_bucket(topic* tpc);
+bucket* getReadBucket(topic* tpc);
 // returns an opaque poiner to a bucket by looking for the most empty bucket
-bucket* get_write_bucket(topic* tpc);
+bucket* getWriteBucket(topic* tpc);
 // declares a topic that can later be subscribed to
-topic* declare_topic(int bucket_sizes,int num_buckets);
+topic* declareTopic(int bucket_sizes, int num_buckets,int data_size);
 // tells the bucket manager that this bucket is no longer in use
-void give_bucket(bucket* b);
+void giveBucket(bucket* b);
+
+void bMessageWrite(void* s_ptr, bucket* bk_ptr, int num);
+
+void bMessageRecieve(void* rPtr, bucket* bkPtr, int num);
+
+void printBucket(bucket* bPtr);
 
 #endif/* BUCKET_MANAGER_H */
