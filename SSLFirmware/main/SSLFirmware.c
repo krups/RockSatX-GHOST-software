@@ -14,9 +14,9 @@
 #include <stdio.h>
 #include "BucketManager.h"
 #include <string.h>
-// #include "BME280_Sensor.h"
-// #include "i2c_manager.h"
-// #include "Fake_Sensor.h"
+#include "BME280_Sensor.h"
+#include "i2c_manager.h"
+#include "Fake_Sensor.h"
 
 void app_main() {
     // Define I2C bus configurations

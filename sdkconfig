@@ -529,6 +529,17 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# Hardware Configuration
+#
+CONFIG_HARDWARE="FULL_FEATURE_DEBUG"
+# CONFIG_KFC_KANGS is not set
+# CONFIG_Fempto_KANGS is not set
+# CONFIG_RST_KANGS is not set
+# CONFIG_GS is not set
+CONFIG_FULL_FEATURE_DEBUG=y
+# end of Hardware Configuration
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEBUG=y
