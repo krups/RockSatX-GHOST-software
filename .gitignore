@@ -1,6 +1,6 @@
-
+build/
 .DS_Store
-
+.vscode
 ################################################
 # for latex
 *.aux
@@ -28,3 +28,5 @@
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+
+
