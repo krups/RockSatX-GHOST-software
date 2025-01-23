@@ -77,7 +77,7 @@ set(CORE_SRCS
   cores/esp32/WMath.cpp
   cores/esp32/WString.cpp
   )
-
+# note that when you add an external arduino library all of its source and header files must be in a folder called src otherwise they will fail to build
 set(ARDUINO_ALL_LIBRARIES
   ArduinoOTA
   AsyncUDP
@@ -122,27 +122,30 @@ set(ARDUINO_ALL_LIBRARIES
   Adafruit_BME280
   Adafruit_Sensor
   Adafruit_BusIO
+  Honeywell_ABP
   )
 
+set(ARDUINO_LIBRARY_Honeywell_ABP_SRCS libraries/Honeywell_ABP/src/Honeywell_ABP.cpp)
 
+#adafruit bus io source files
 set(ARDUINO_LIBRARY_Adafruit_BusIO_SRCS
   libraries/Adafruit_BusIO/src/Adafruit_BusIO_Register.cpp
   libraries/Adafruit_BusIO/src/Adafruit_GenericDevice.cpp
   libraries/Adafruit_BusIO/src/Adafruit_I2CDevice.cpp
   libraries/Adafruit_BusIO/src/Adafruit_SPIDevice.cpp)
-
+#adafruit sensor source files
 set(ARDUINO_LIBRARY_Adafruit_Sensor_SRCS libraries/Adafruit_Sensor/src/Adafruit_Sensor.cpp)
-
+#adafruit bme280 source files
 set(ARDUINO_LIBRARY_Adafruit_BME280
   libraries/Adafruit_BME280/src/Adafruit_BME280.cpp)
-
+#adafruit BNO 086 source files
 set(ARDUINO_LIBRARY_Adafruit_BNO08x_SRCS 
   libraries/Adafruit_BNO08x/src/Adafruit_BNO08x.cpp
   libraries/Adafruit_BNO08x/src/sh2_SensorValue.c
   libraries/Adafruit_BNO08x/src/sh2_util.c
   libraries/Adafruit_BNO08x/src/sh2.c
   libraries/Adafruit_BNO08x/src/shtp.c)
-
+#adafruit iridium sbd source files
 set (ARDUINO_LIBRARY_IridiumSBD_SRCS libraries/IridiumSBD/src/IridiumSBD.cpp)
 
 set(ARDUINO_LIBRARY_ArduinoOTA_SRCS libraries/ArduinoOTA/src/ArduinoOTA.cpp)
