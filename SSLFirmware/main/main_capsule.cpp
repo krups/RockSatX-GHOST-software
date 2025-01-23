@@ -3,7 +3,7 @@
 //Developed for RockSat-X GHOST
 //Based on Matt Ruffner's KREPE 2 firmware
 //Developed by Hersch Nathan, Alex Barrera
-
+#include <string.h>
 #include "config.h" 
 #include "freertos/FreeRTOS.h" 
 #include "freertos/task.h" 
@@ -12,17 +12,22 @@
 #include "freertos/semphr.h"
 #include <driver/i2c.h>
 #include <stdio.h>
-extern "C" {
-#include "BucketManager.h"
-}
-#include <string.h>
 #include "Arduino.h"
 //included arduino libraries
 //IridiumSBD -- builds
 //Adafruit_BNO086 -- builds
 //BME280 -- builds
+//Adafruit_BusIO -- builds
+//Adafruit_Sensor --builds
 //Adafruit_I2C
 //Adafruit_SPI
+
+extern "C" {
+#include "BucketManager.h"
+}
+
+
+
 
 
 

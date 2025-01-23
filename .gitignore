@@ -1,5 +1,4 @@
 build/
-
 .DS_Store
 
 ################################################
@@ -2431,3 +2430,5 @@ build/srmodels/mn6_cn/vocab
 build/srmodels/wn9_hilexin/_MODEL_INFO_
 build/srmodels/wn9_hilexin/wn9_data
 build/srmodels/wn9_hilexin/wn9_index
+.vscode/
+

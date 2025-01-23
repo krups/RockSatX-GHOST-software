@@ -1,6 +1,6 @@
-set(srcs "SSLFirmware.c")
 
-idf_component_register(SRCS ${srcs}
+
+idf_component_register(SRCS "main_capsule.cpp"
                     INCLUDE_DIRS "."
                     PRIV_REQUIRES driver
-                    REQUIRES Manager Sensors)
+                    REQUIRES BucketManager arduino-esp32)
