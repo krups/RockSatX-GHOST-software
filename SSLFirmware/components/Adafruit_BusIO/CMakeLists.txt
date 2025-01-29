@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 idf_component_register(SRCS "src/Adafruit_I2CDevice.cpp" "src/Adafruit_BusIO_Register.cpp" "src/Adafruit_SPIDevice.cpp" 
-                       INCLUDE_DIRS "."
-                       REQUIRES arduino-esp32)
+                       INCLUDE_DIRS "src"
+                       REQUIRES driver arduino-esp32 main)
 
 project(Adafruit_BusIO)

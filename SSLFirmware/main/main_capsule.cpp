@@ -25,17 +25,32 @@
 extern "C" {
 #include "BucketManager.h"
 }
+#include "Adafruit_BME280.h"
+#include "Adafruit_BNO08x.h"
+#include "Honeywell_ABP.h"
+#include "IridiumSBD.h"
 
 
 
 
 
-
-extern "C" {
 void app_main() {
-   
+    //for i2c bus it defaults to the &wire defined in arduino wire library
     
+    Serial.begin(9600);
 
+    TwoWire theWire = TwoWire(0);
+    
+    Serial.println("freak");
+
+    Adafruit_BME280 BME280;
+    BME280.begin(96,&theWire);
+    
+    // this technically says that the reset pin is on 0 but that is just a filler value for now
+    Adafruit_BNO08x BNO = Adafruit_BNO08x(0);
+    BNO.begin_I2C(74,&theWire,1);
+
+    IridiumSBD modem();
     // I2CBusConfig bus2Config = {
     //     .i2cPort = I2C_NUM_1,
     //     .sensorEvents = {SENSOR3_EVENT, SENSOR4_EVENT, SENSOR5_EVENT},
@@ -59,6 +74,4 @@ void app_main() {
     
     
     
-}
-
 }
